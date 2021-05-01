@@ -47,13 +47,14 @@ def get_latest_run(search_dir='.'):
 
 
 def check_online():
-    # Check internet connectivity
-    import socket
-    try:
-        socket.create_connection(("1.1.1.1", 53))  # check host accesability
-        return True
-    except OSError:
-        return False
+    return True
+#    # Check internet connectivity
+#    import socket
+#    try:
+#        socket.create_connection(("1.1.1.1", 53))  # check host accesability
+#        return True
+#    except OSError:
+#        return False
 
 
 def check_git_status():
