@@ -1,0 +1,27 @@
+# YOLOv3 training config for Bricklens Detection-1000 dataset
+
+train: /home/mdw/datasets/bricklens_detection_1000/train.txt
+val: /home/mdw/datasets/bricklens_detection_1000/val.txt
+
+# number of classes
+nc: 16
+
+# class names
+names: [
+  '3008_Dark_Grey',
+  '3008_Light_Blue',
+  '3008_Pink',
+  '3008_Blue',
+  '4201_Dark_Grey',
+  '4201_Light_Blue',
+  '4201_Pink',
+  '4201_Blue',
+  '3003_Dark_Grey',
+  '3003_Light_Blue',
+  '3003_Pink',
+  '3003_Blue',
+  '3007_Dark_Grey',
+  '3007_Light_Blue',
+  '3007_Pink',
+  '3007_Blue'
+]
