@@ -36,7 +36,9 @@ def test(data,
          save_hybrid=False,  # for hybrid auto-labelling
          save_conf=False,  # save auto-label confidences
          plots=True,
-         log_imgs=0):  # number of logged images
+         log_imgs=0,  # number of logged images
+         epoch=0,     # Epoch (for image labels)
+):
 
     # Initialize/load model and set device
     training = model is not None
@@ -97,6 +99,7 @@ def test(data,
     p, r, f1, mp, mr, map50, map, t0, t1 = 0., 0., 0., 0., 0., 0., 0., 0., 0.
     loss = torch.zeros(3, device=device)
     jdict, stats, ap, ap_class, wandb_images = [], [], [], [], []
+
     for batch_i, (img, targets, paths, shapes) in enumerate(tqdm(dataloader, desc=s)):
         img = img.to(device, non_blocking=True)
         img = img.half() if half else img.float()  # uint8 to fp16/32
@@ -148,14 +151,15 @@ def test(data,
                         f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
             # W&B logging
-            if plots and len(wandb_images) < log_imgs:
-                box_data = [{"position": {"minX": xyxy[0], "minY": xyxy[1], "maxX": xyxy[2], "maxY": xyxy[3]},
-                             "class_id": int(cls),
-                             "box_caption": "%s %.3f" % (names[cls], conf),
-                             "scores": {"class_score": conf},
-                             "domain": "pixel"} for *xyxy, conf, cls in pred.tolist()]
-                boxes = {"predictions": {"box_data": box_data, "class_labels": names}}  # inference-space
-                wandb_images.append(wandb.Image(img[si], boxes=boxes, caption=path.name))
+            # MDW 15 Nov 2021: Disabling this as I think it's redundant.
+            #if plots and len(wandb_images) < log_imgs:
+            #    box_data = [{"position": {"minX": xyxy[0], "minY": xyxy[1], "maxX": xyxy[2], "maxY": xyxy[3]},
+            #                 "class_id": int(cls),
+            #                 "box_caption": "%s %.3f" % (names[cls], conf),
+            #                 "scores": {"class_score": conf},
+            #                 "domain": "pixel"} for *xyxy, conf, cls in pred.tolist()]
+            #    boxes = {"predictions": {"box_data": box_data, "class_labels": names}}  # inference-space
+            #    wandb_images.append(wandb.Image(img[si], boxes=boxes, caption=path.name))
 
             # Append to pycocotools JSON dictionary
             if save_json:
@@ -205,12 +209,22 @@ def test(data,
             # Append statistics (correct, conf, pcls, tcls)
             stats.append((correct.cpu(), pred[:, 4].cpu(), pred[:, 5].cpu(), tcls))
 
-        # Plot images
+        # Plot images. We only plot the first 3 batches.
         if plots and batch_i < 3:
-            f = save_dir / f'test_batch{batch_i}_labels.jpg'  # labels
-            Thread(target=plot_images, args=(img, targets, paths, f, names), daemon=True).start()
-            f = save_dir / f'test_batch{batch_i}_pred.jpg'  # predictions
-            Thread(target=plot_images, args=(img, output_to_target(output), paths, f, names), daemon=True).start()
+            labels_path = save_dir / f'test_epoch{epoch}_batch{batch_i}_labels.jpg'  # labels
+            #Thread(target=plot_images, args=(img, targets, paths, f, names), daemon=True).start()
+            plot_images(img, targets, paths, labels_path, names)
+            pred_path = save_dir / f'test_epoch{epoch}_batch{batch_i}_pred.jpg'  # predictions
+            #Thread(target=plot_images, args=(img, output_to_target(output), paths, f, names), daemon=True).start()
+            plot_images(img, output_to_target(output), paths, pred_path, names)
+            wandb.log(
+                {
+                    "epoch": epoch,
+                    "batch": batch_i,
+                    "test_labels": [wandb.Image(str(labels_path), caption=labels_path.name)],
+                    "test_pred": [wandb.Image(str(pred_path), caption=pred_path.name)],
+                }
+            )
 
     # Compute statistics
     stats = [np.concatenate(x, 0) for x in zip(*stats)]  # to numpy
@@ -239,9 +253,8 @@ def test(data,
     # Plots
     if plots:
         confusion_matrix.plot(save_dir=save_dir, names=list(names.values()))
-        if wandb and wandb.run:
-            wandb.log({"Images": wandb_images})
-            wandb.log({"Validation": [wandb.Image(str(f), caption=f.name) for f in sorted(save_dir.glob('test*.jpg'))]})
+        #if wandb and wandb.run:
+            # wandb.log({"test_images": wandb_images})
 
     # Save JSON
     if save_json and len(jdict):

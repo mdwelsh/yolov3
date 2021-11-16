@@ -231,6 +231,7 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
                 f'Using {dataloader.num_workers} dataloader workers\n'
                 f'Logging results to {save_dir}\n'
                 f'Starting training for {epochs} epochs...')
+
     for epoch in range(start_epoch, epochs):  # epoch ------------------------------------------------------------------
         model.train()
 
@@ -260,6 +261,7 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
         if rank in [-1, 0]:
             pbar = tqdm(pbar, total=nb)  # progress bar
         optimizer.zero_grad()
+
         for i, (imgs, targets, paths, _) in pbar:  # batch -------------------------------------------------------------
             ni = i + nb * epoch  # number integrated batches (since train start)
             imgs = imgs.to(device, non_blocking=True).float() / 255.0  # uint8 to float32, 0-255 to 0.0-1.0
@@ -311,15 +313,21 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
                     '%g/%g' % (epoch, epochs - 1), mem, *mloss, targets.shape[0], imgs.shape[-1])
                 pbar.set_description(s)
 
-                # Plot
-                if plots and ni < 3:
-                    f = save_dir / f'train_batch{ni}.jpg'  # filename
-                    Thread(target=plot_images, args=(imgs, targets, paths, f), daemon=True).start()
+                # Plot training images. We only want to plot images from the first batch in each epoch.
+                if plots and i == 0:
+                    train_path = save_dir / f'train_epoch{epoch}_batch{i}.jpg'  # filename
+                    #Thread(target=plot_images, args=(imgs, targets, paths, f), daemon=True).start()
+                    plot_images(imgs, targets, paths, train_path)
                     # if tb_writer:
                     #     tb_writer.add_image(f, result, dataformats='HWC', global_step=epoch)
                     #     tb_writer.add_graph(model, imgs)  # add model to tensorboard
-                elif plots and ni == 3 and wandb:
-                    wandb.log({"Mosaics": [wandb.Image(str(x), caption=x.name) for x in save_dir.glob('train*.jpg')]})
+                    if wandb:
+                        wandb.log({
+                            "epoch": epoch,
+                            "batch": i,
+                            "global_step": ni,
+                            "train_images": [wandb.Image(str(train_path), caption=train_path.name)]
+                        })
 
             # end batch ------------------------------------------------------------------------------------------------
         # end epoch ----------------------------------------------------------------------------------------------------
@@ -342,7 +350,7 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
                                                  single_cls=opt.single_cls,
                                                  dataloader=testloader,
                                                  save_dir=save_dir,
-                                                 plots=plots and final_epoch,
+                                                 plots=plots,
                                                  log_imgs=opt.log_imgs if wandb else 0)
 
             # Write
@@ -351,16 +359,18 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
             if len(opt.name) and opt.bucket:
                 os.system('gsutil cp %s gs://%s/results/results%s.txt' % (results_file, opt.bucket, opt.name))
 
-            # Log
+            # Log metrics for this epoch.
             tags = ['train/box_loss', 'train/obj_loss', 'train/cls_loss',  # train loss
                     'metrics/precision', 'metrics/recall', 'metrics/mAP_0.5', 'metrics/mAP_0.5:0.95',
                     'val/box_loss', 'val/obj_loss', 'val/cls_loss',  # val loss
                     'x/lr0', 'x/lr1', 'x/lr2']  # params
+            log_dict = {"epoch": epoch, "global_step": nb * epoch + (nb-1), "batch": nb-1}
             for x, tag in zip(list(mloss[:-1]) + list(results) + lr, tags):
                 if tb_writer:
                     tb_writer.add_scalar(tag, x, epoch)  # tensorboard
-                if wandb:
-                    wandb.log({tag: x})  # W&B
+                log_dict[tag] = x
+            if wandb:
+                wandb.log(log_dict)
 
             # Update best mAP
             fi = fitness(np.array(results).reshape(1, -1))  # weighted combination of [P, R, mAP@.5, mAP@.5-.95]
@@ -419,7 +429,7 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
                                           dataloader=testloader,
                                           save_dir=save_dir,
                                           save_json=save_json,
-                                          plots=False)
+                                          plots=True)
 
     else:
         dist.destroy_process_group()
