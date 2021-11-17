@@ -312,13 +312,13 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
                 # Plot training images. We only want to plot images from the first batch in each epoch.
                 if plots and i == 0:
                     train_path = save_dir / f'train_epoch{epoch}_batch{i}.jpg'  # filename
-                    Thread(target=plot_images, args=(imgs, targets, paths, train_path), daemon=True).start()
-                    #plot_images(imgs, targets, paths, train_path)
-                    # if tb_writer:
-                    #     tb_writer.add_image(f, result, dataformats='HWC', global_step=epoch)
-                    #     tb_writer.add_graph(model, imgs)  # add model to tensorboard
-                    if wandb:
-                        wandb.log({"train_images": [wandb.Image(str(train_path), caption=train_path.name)]}, commit=False)
+
+                    def plot_and_log():
+                        plot_images(imgs, targets, paths, train_path)
+                        if wandb:
+                            wandb.log({"train_images": [wandb.Image(str(train_path), caption=train_path.name)]})
+
+                    Thread(target=plot_and_log, daemon=True).start()
 
                 # Calculate mean loss and other metrics for logging.
                 mloss = (mloss * i + loss_items) / (i + 1)  # update mean losses
@@ -337,7 +337,7 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
                 for x, tag in zip(list(mloss[:-1]), tags):
                    log_dict[tag] = x
                 if wandb:
-                    wandb.log(log_dict, commit=True)
+                    wandb.log(log_dict)
 
             # end batch ------------------------------------------------------------------------------------------------
         # end epoch ----------------------------------------------------------------------------------------------------
@@ -380,7 +380,7 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
                     tb_writer.add_scalar(tag, x, epoch)  # tensorboard
                 log_dict[tag] = x
             if wandb:
-                wandb.log(log_dict, commit=True)
+                wandb.log(log_dict)
 
             # Update best mAP
             fi = fitness(np.array(results).reshape(1, -1))  # weighted combination of [P, R, mAP@.5, mAP@.5-.95]

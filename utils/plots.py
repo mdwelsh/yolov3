@@ -173,6 +173,7 @@ def plot_images(images, targets, paths=None, fname='images.jpg', names=None, max
         mosaic = cv2.resize(mosaic, (int(ns * w * r), int(ns * h * r)), interpolation=cv2.INTER_AREA)
         # cv2.imwrite(fname, cv2.cvtColor(mosaic, cv2.COLOR_BGR2RGB))  # cv2 save
         Image.fromarray(mosaic).save(fname)  # PIL save
+
     return mosaic
 
 

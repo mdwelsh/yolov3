@@ -212,19 +212,19 @@ def test(data,
         # Plot images. We only plot the first 3 batches.
         if plots and batch_i < 3:
             labels_path = save_dir / f'test_epoch{epoch}_batch{batch_i}_labels.jpg'  # labels
-            Thread(target=plot_images, args=(img, targets, paths, labels_path, names), daemon=True).start()
-            #plot_images(img, targets, paths, labels_path, names)
             pred_path = save_dir / f'test_epoch{epoch}_batch{batch_i}_pred.jpg'  # predictions
-            Thread(target=plot_images, args=(img, output_to_target(output), paths, labels_path, names), daemon=True).start()
-            #plot_images(img, output_to_target(output), paths, pred_path, names)
-            wandb.log(
-                {
-                    "test_batch": batch_i,
-                    "test_labels": [wandb.Image(str(labels_path), caption=labels_path.name)],
-                    "test_pred": [wandb.Image(str(pred_path), caption=pred_path.name)],
-                },
-                commit=False   # Require a later logging operation to commit.
-            )
+
+            def plot_and_log():
+                plot_images(img, targets, paths, labels_path, names)
+                plot_images(img, output_to_target(output), paths, pred_path, names)
+                wandb.log(
+                  {
+                      "test_batch": batch_i,
+                      "test_labels": [wandb.Image(str(labels_path), caption=labels_path.name)],
+                      "test_pred": [wandb.Image(str(pred_path), caption=pred_path.name)],
+                  },
+                )
+            Thread(target=plot_and_log, daemon=True).start()
 
     # Compute statistics
     stats = [np.concatenate(x, 0) for x in zip(*stats)]  # to numpy
