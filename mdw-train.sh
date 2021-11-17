@@ -23,6 +23,8 @@
 #  --data data/bricklens_1000.yaml \
 #  --hyp data/hyp.bricklens.yaml
 
+# Starting run 14 Nov 2021 with new 2000-image dataset.
+
 python ./train.py \
   --project bricklens-yolov3 \
   --batch 4 \
@@ -30,3 +32,4 @@ python ./train.py \
   --cfg models/yolov3.yaml \
   --data data/bricklens_detection_2000.yaml \
   --hyp data/hyp.bricklens.yaml
+
