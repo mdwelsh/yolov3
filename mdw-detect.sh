@@ -11,5 +11,5 @@
 #  --weights runs/train/exp5/weights/best.pt
 
 python ./detect.py \
-  --source /home/mdw/datasets/bricklens_detection_1000/test_images \
-  --weights runs/train/exp7/weights/best.pt
+  --source /home/mdw/datasets/bricklens_detection_2000/test_images \
+  --weights bricklens-yolov3/exp7/weights/best.pt 
