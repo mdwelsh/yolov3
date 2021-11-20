@@ -219,6 +219,7 @@ def test(data,
                 plot_images(img, output_to_target(output), paths, pred_path, names)
                 wandb.log(
                   {
+                      "epoch": epoch,
                       "test_batch": batch_i,
                       "test_labels": [wandb.Image(str(labels_path), caption=labels_path.name)],
                       "test_pred": [wandb.Image(str(pred_path), caption=pred_path.name)],

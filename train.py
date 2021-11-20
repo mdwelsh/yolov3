@@ -253,7 +253,7 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
         # b = int(random.uniform(0.25 * imgsz, 0.75 * imgsz + gs) // gs * gs)
         # dataset.mosaic_border = [b - imgsz, -b]  # height, width borders
 
-        mloss = torch.zeros(4, device=device)  # mean losses
+        sumloss = torch.zeros(4, device=device)  # sum of losses over the batch
         if rank != -1:
             dataloader.sampler.set_epoch(epoch)
         pbar = enumerate(dataloader)
@@ -309,8 +309,8 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
 
             # Log results.
             if rank in [-1, 0]:
-                # Plot training images. We only want to plot images from the first batch in each epoch.
-                if plots and i == 0:
+                # Plot training images. We only want to plot images from the first three batches in the first epoch.
+                if plots and epoch == 0 and i < 3:
                     train_path = save_dir / f'train_epoch{epoch}_batch{i}.jpg'  # filename
 
                     def plot_and_log():
@@ -321,10 +321,12 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
                     Thread(target=plot_and_log, daemon=True).start()
 
                 # Calculate mean loss and other metrics for logging.
-                mloss = (mloss * i + loss_items) / (i + 1)  # update mean losses
+                sumloss = sumloss + loss_items
+                # Running mean.
+                meanloss = sumloss / (i+1)
                 mem = '%.3gG' % (torch.cuda.memory_reserved() / 1E9 if torch.cuda.is_available() else 0)  # (GB)
                 s = ('%10s' * 2 + '%10.4g' * 6) % (
-                    '%g/%g' % (epoch, epochs - 1), mem, *mloss, targets.shape[0], imgs.shape[-1])
+                    '%g/%g' % (epoch, epochs - 1), mem, *meanloss, targets.shape[0], imgs.shape[-1])
                 pbar.set_description(s)
 
                 # Log to WandB.
@@ -333,8 +335,8 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
                     "train_step": ni,
                     "train_batch": i,
                 }
-                tags = ['train/box_loss', 'train/obj_loss', 'train/cls_loss']
-                for x, tag in zip(list(mloss[:-1]), tags):
+                tags = ['train/box_loss', 'train/obj_loss', 'train/cls_loss', 'train/total_loss']
+                for x, tag in zip(list(meanloss), tags):
                    log_dict[tag] = x
                 if wandb:
                     wandb.log(log_dict)
@@ -361,7 +363,8 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
                                                  dataloader=testloader,
                                                  save_dir=save_dir,
                                                  plots=plots,
-                                                 log_imgs=opt.log_imgs if wandb else 0)
+                                                 log_imgs=opt.log_imgs if wandb else 0,
+                                                 epoch=epoch)
 
             # Write
             with open(results_file, 'a') as f:
@@ -370,12 +373,13 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
                 os.system('gsutil cp %s gs://%s/results/results%s.txt' % (results_file, opt.bucket, opt.name))
 
             # Log metrics for this epoch.
-            tags = ['train/box_loss', 'train/obj_loss', 'train/cls_loss',  # train loss
+            meanloss = sumloss / nb
+            tags = ['train/box_loss', 'train/obj_loss', 'train/cls_loss', 'train/total_loss',  # train loss
                     'metrics/precision', 'metrics/recall', 'metrics/mAP_0.5', 'metrics/mAP_0.5:0.95',
                     'val/box_loss', 'val/obj_loss', 'val/cls_loss',  # val loss
                     'x/lr0', 'x/lr1', 'x/lr2']  # params
             log_dict = {"epoch": epoch, "global_step": nb * epoch + (nb-1), "batch": nb-1}
-            for x, tag in zip(list(mloss[:-1]) + list(results) + lr, tags):
+            for x, tag in zip(list(meanloss) + list(results) + lr, tags):
                 if tb_writer:
                     tb_writer.add_scalar(tag, x, epoch)  # tensorboard
                 log_dict[tag] = x
@@ -439,7 +443,8 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
                                           dataloader=testloader,
                                           save_dir=save_dir,
                                           save_json=save_json,
-                                          plots=True)
+                                          plots=True,
+                                          epoch=epochs)
 
     else:
         dist.destroy_process_group()

@@ -89,6 +89,7 @@ def plot_wh_methods():  # from utils.plots import *; plot_wh_methods()
     plt.grid()
     plt.legend()
     fig.savefig('comparison.png', dpi=200)
+    plt.close()
 
 
 def output_to_target(output):
@@ -211,6 +212,7 @@ def plot_test_txt():  # from utils.plots import *; plot_test()
     ax[0].hist(cx, bins=600)
     ax[1].hist(cy, bins=600)
     plt.savefig('hist1d.png', dpi=200)
+    plt.close()
 
 
 def plot_targets_txt():  # from utils.plots import *; plot_targets_txt()
@@ -224,6 +226,7 @@ def plot_targets_txt():  # from utils.plots import *; plot_targets_txt()
         ax[i].legend()
         ax[i].set_title(s[i])
     plt.savefig('targets.jpg', dpi=200)
+    plt.close()
 
 
 def plot_study_txt(path='study/', x=None):  # from utils.plots import *; plot_study_txt()
@@ -255,6 +258,7 @@ def plot_study_txt(path='study/', x=None):  # from utils.plots import *; plot_st
     ax2.set_ylabel('COCO AP val')
     ax2.legend(loc='lower right')
     plt.savefig('test_study.png', dpi=300)
+    plt.close()
 
 
 def plot_labels(labels, save_dir=Path(''), loggers=None):
@@ -321,6 +325,7 @@ def plot_evolution(yaml_file='data/hyp.finetune.yaml'):  # from utils.plots impo
             plt.yticks([])
         print('%15s: %.3g' % (k, mu))
     plt.savefig('evolve.png', dpi=200)
+    plt.close()
     print('\nPlot saved as evolve.png')
 
 
@@ -354,6 +359,7 @@ def profile_idetection(start=0, stop=0, labels=(), save_dir=''):
 
     ax[1].legend()
     plt.savefig(Path(save_dir) / 'idetection_profile.png', dpi=200)
+    plt.close()
 
 
 def plot_results_overlay(start=0, stop=0):  # from utils.plots import *; plot_results_overlay()
@@ -377,6 +383,7 @@ def plot_results_overlay(start=0, stop=0):  # from utils.plots import *; plot_re
             ax[i].legend()
             ax[i].set_ylabel(f) if i == 0 else None  # add filename
         fig.savefig(f.replace('.txt', '.png'), dpi=200)
+        plt.close()
 
 
 def plot_results(start=0, stop=0, bucket='', id=(), labels=(), save_dir=''):
@@ -413,3 +420,4 @@ def plot_results(start=0, stop=0, bucket='', id=(), labels=(), save_dir=''):
 
     ax[1].legend()
     fig.savefig(Path(save_dir) / 'results.png', dpi=200)
+    plt.close()
