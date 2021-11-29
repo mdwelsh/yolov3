@@ -73,7 +73,7 @@ def test(data,
     with open(data) as f:
         data = yaml.load(f, Loader=yaml.FullLoader)  # model dict
     check_dataset(data)  # check
-    nc = 1 if single_cls else int(data['nc'])  # number of classes
+
     iouv = torch.linspace(0.5, 0.95, 10).to(device)  # iou vector for mAP@0.5:0.95
     niou = iouv.numel()
 
@@ -93,8 +93,9 @@ def test(data,
                                        prefix=colorstr('test: ' if opt.task == 'test' else 'val: '))[0]
 
     seen = 0
-    confusion_matrix = ConfusionMatrix(nc=nc)
     names = {k: v for k, v in enumerate(model.names if hasattr(model, 'names') else model.module.names)}
+    nc = len(names)
+    confusion_matrix = ConfusionMatrix(nc=nc)
     coco91class = coco80_to_coco91_class()
     s = ('%20s' + '%12s' * 6) % ('Class', 'Images', 'Targets', 'P', 'R', 'mAP@.5', 'mAP@.5:.95')
     p, r, f1, mp, mr, map50, map, t0, t1 = 0., 0., 0., 0., 0., 0., 0., 0., 0.
@@ -369,7 +370,6 @@ if __name__ == '__main__':
         with open(opt.data) as f:
             data = yaml.load(f, Loader=yaml.FullLoader)  # model dict
         check_dataset(data)  # check
-        nc = 1 if opt.single_cls else int(data['nc'])  # number of classes
 
         randimg = torch.rand((1, 3, imgsz, imgsz), device=device)  # init img
         randimg = randimg.half() if half else randimg.float()  # uint8 to fp16/32
