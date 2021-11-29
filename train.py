@@ -64,9 +64,18 @@ def train(hyp, opt, device, tb_writer=None, wandb=None):
         check_dataset(data_dict)  # check
     train_path = data_dict['train']
     test_path = data_dict['val']
-    nc = 1 if opt.single_cls else int(data_dict['nc'])  # number of classes
-    names = ['item'] if opt.single_cls and len(data_dict['names']) != 1 else data_dict['names']  # class names
-    assert len(names) == nc, '%g names found for nc=%g dataset in %s' % (len(names), nc, opt.data)  # check
+
+    classes_path = data_dict['classes']
+    names = []
+    with open(classes_path, "r") as classfile:
+        for line in classfile:
+            class_index, class_name = line.split()
+            names.append(class_name)
+    nc = len(names)
+
+    #nc = 1 if opt.single_cls else int(data_dict['nc'])  # number of classes
+    #names = ['item'] if opt.single_cls and len(data_dict['names']) != 1 else data_dict['names']  # class names
+    #assert len(names) == nc, '%g names found for nc=%g dataset in %s' % (len(names), nc, opt.data)  # check
 
     # Model
     pretrained = weights.endswith('.pt')
