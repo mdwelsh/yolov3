@@ -271,7 +271,7 @@ class LoadStreams:  # multiple IP or RTSP cameras
         self.sources = [clean_str(x) for x in sources]  # clean source names for later
         for i, s in enumerate(sources):
             # Start the thread to read frames from the video stream
-            print(f'{i + 1}/{n}: {s}... ', end='')
+            print(f'Starting stream {i + 1}/{n}: {s}... ', end='')
             cap = cv2.VideoCapture(eval(s) if s.isnumeric() else s)
             assert cap.isOpened(), f'Failed to open {s}'
             w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -312,8 +312,18 @@ class LoadStreams:  # multiple IP or RTSP cameras
             cv2.destroyAllWindows()
             raise StopIteration
 
+        # XXX MDW HACKING.
+        for index, img in enumerate(img0):
+            print(f"MDW: img[{index}] is {img.shape} - type {type(img)}")
+
         # Letterbox
-        img = [letterbox(x, new_shape=self.img_size, auto=self.rect)[0] for x in img0]
+        # XXX MDW - Disable 'rect' so we ensure that the image returned is always square.
+        # This likely works better with the models we are using
+
+        #img = [letterbox(x, new_shape=self.img_size, auto=self.rect)[0] for x in img0]
+        img = [letterbox(x, new_shape=self.img_size, auto=False)[0] for x in img0]
+        print(f"MDW: after letterbox, shape is {[x.shape for x in img]}")
+        cv2.imshow("raw_image", img[0])
 
         # Stack
         img = np.stack(img, 0)
@@ -321,6 +331,7 @@ class LoadStreams:  # multiple IP or RTSP cameras
         # Convert
         img = img[:, :, :, ::-1].transpose(0, 3, 1, 2)  # BGR to RGB, to bsx3x416x416
         img = np.ascontiguousarray(img)
+        print(f"MDW: returning image of shape {[x.shape for x in img]}")
 
         return self.sources, img, img0, None
 
@@ -794,6 +805,7 @@ def replicate(img, labels):
 
 def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True):
     # Resize image to a 32-pixel-multiple rectangle https://github.com/ultralytics/yolov3/issues/232
+    print(f"MDW: letterbox: img.shape is {img.shape}")
     shape = img.shape[:2]  # current shape [height, width]
     if isinstance(new_shape, int):
         new_shape = (new_shape, new_shape)

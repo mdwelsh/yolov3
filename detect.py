@@ -44,10 +44,12 @@ def detect(save_img=False):
     # Set Dataloader
     vid_path, vid_writer = None, None
     if webcam:
+        print(f"Loading webcam stream from source {source}")
         view_img = True
         cudnn.benchmark = True  # set True to speed up constant image size inference
         dataset = LoadStreams(source, img_size=imgsz)
     else:
+        print(f"Loading images from files: {source}")
         save_img = True
         dataset = LoadImages(source, img_size=imgsz)
 
@@ -56,6 +58,7 @@ def detect(save_img=False):
     colors = [[random.randint(0, 255) for _ in range(3)] for _ in names]
 
     # Run inference
+    print(f"MDW: Model image size is {imgsz} x {imgsz}")
     t0 = time.time()
     img = torch.zeros((1, 3, imgsz, imgsz), device=device)  # init img
     _ = model(img.half() if half else img) if device.type != 'cpu' else None  # run once
@@ -65,6 +68,7 @@ def detect(save_img=False):
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
+        print(f"MDW: Image we are feeding to model is {img.shape}")
 
         # Inference
         t1 = time_synchronized()

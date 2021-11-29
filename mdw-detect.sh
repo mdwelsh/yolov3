@@ -11,5 +11,10 @@
 #  --weights runs/train/exp5/weights/best.pt
 
 python ./detect.py \
-  --source /home/mdw/datasets/bricklens_detection_2000_moreparts/test_images \
-  --weights bricklens-yolov3/exp8/weights/best.pt 
+  --source $HOME/datasets/bricklens_detection_2000/test_images \
+  --weights saved-runs/bricklens_detection_2000_works/weights/best.pt 
+
+#python ./detect.py \
+#  --source $HOME/datasets/bricklens_detection_2000_moreparts/test_images \
+#  --weights saved-runs/bricklens_detection_2000_morepieces_works/weights/best.pt 
+
