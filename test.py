@@ -210,8 +210,8 @@ def test(data,
             # Append statistics (correct, conf, pcls, tcls)
             stats.append((correct.cpu(), pred[:, 4].cpu(), pred[:, 5].cpu(), tcls))
 
-        # Plot images. We only plot the first 3 batches.
-        if plots and batch_i < 3:
+        # Plot images. We only plot the first batch.
+        if plots and batch_i == 0:
             labels_path = save_dir / f'test_epoch{epoch}_batch{batch_i}_labels.jpg'  # labels
             pred_path = save_dir / f'test_epoch{epoch}_batch{batch_i}_pred.jpg'  # predictions
 
