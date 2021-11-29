@@ -1,0 +1,52 @@
+# YOLOv3 training config for Bricklens Detection-1000 dataset
+
+train: /home/mdw/datasets/bricklens_detection_2000/train.txt
+val: /home/mdw/datasets/bricklens_detection_2000/val.txt
+
+
+# number of classes
+nc: 40
+
+# class names
+names: [
+"3010_Bright_Reddish_Lilac",
+"3010_Bright_Light_Orange",
+"3010_Aqua",
+"3010_Chrome_Black",
+"2456_Bright_Reddish_Lilac",
+"2456_Bright_Light_Orange",
+"2456_Aqua",
+"2456_Chrome_Black",
+"2356_Bright_Reddish_Lilac",
+"2356_Bright_Light_Orange",
+"2356_Aqua",
+"2356_Chrome_Black",
+"3003_Bright_Reddish_Lilac",
+"3003_Bright_Light_Orange",
+"3003_Aqua",
+"3003_Chrome_Black",
+"3002_Bright_Reddish_Lilac",
+"3002_Bright_Light_Orange",
+"3002_Aqua",
+"3002_Chrome_Black",
+"3008_Bright_Reddish_Lilac",
+"3008_Bright_Light_Orange",
+"3008_Aqua",
+"3008_Chrome_Black",
+"3622_Bright_Reddish_Lilac",
+"3622_Bright_Light_Orange",
+"3622_Aqua",
+"3622_Chrome_Black",
+"3004_Bright_Reddish_Lilac",
+"3004_Bright_Light_Orange",
+"3004_Aqua",
+"3004_Chrome_Black",
+"4201_Bright_Reddish_Lilac",
+"4201_Bright_Light_Orange",
+"4201_Aqua",
+"4201_Chrome_Black",
+"3009_Bright_Reddish_Lilac",
+"3009_Bright_Light_Orange",
+"3009_Aqua",
+"3009_Chrome_Black",
+]
