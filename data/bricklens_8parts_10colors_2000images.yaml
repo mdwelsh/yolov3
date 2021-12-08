@@ -1,0 +1,6 @@
+# YOLOv3 training config for Bricklens 
+
+train: /home/mdw/datasets/bricklens/bricklens_8parts_10colors_2000images/train.txt
+val: /home/mdw/datasets/bricklens/bricklens_8parts_10colors_2000images/val.txt
+classes: /home/mdw/datasets/bricklens/bricklens_8parts_10colors_2000images/classes.txt
+

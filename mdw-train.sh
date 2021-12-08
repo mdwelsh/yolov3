@@ -49,7 +49,8 @@
 python ./train.py \
   --project bricklens-yolov3 \
   --batch 4 \
-  --epochs 500 \
+  --epochs 1000 \
   --cfg models/yolov3.yaml \
-  --data data/bricklens_34parts_10colors_2000images.yaml \
+  --data data/bricklens_8parts_10colors_2000images.yaml \
   --hyp data/hyp.bricklens.yaml
+
