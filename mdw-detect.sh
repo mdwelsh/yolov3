@@ -18,6 +18,11 @@
 #  --source $HOME/datasets/bricklens_detection_2000_moreparts/test_images \
 #  --weights saved-runs/bricklens_detection_2000_morepieces_works/weights/best.pt 
 
+#python ./detect.py \
+#  --source $HOME/datasets/bricklens/bricklens_8parts_10colors_2000images/test_images \
+#  --weights bricklens-yolov3/exp15/weights/best.pt
+
 python ./detect.py \
-  --source $HOME/datasets/bricklens/bricklens_8parts_10colors_2000images/test_images \
-  --weights bricklens-yolov3/exp15/weights/best.pt
+  --device cpu \
+  --source $HOME/datasets/bricklens/bricklens_8parts_10colors_10000images/test_images \
+  --weights bricklens-yolov3/exp20/weights/best.pt
