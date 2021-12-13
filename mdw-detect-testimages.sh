@@ -3,6 +3,8 @@
 # Use $HOME/venvs/yolov3/bin/activate
 
 python ./detect.py \
-  --device cpu \
+  --conf-thres 0.05 \
   --source $HOME/datasets/bricklens/test_images \
-  --weights bricklens-yolov3/exp20/weights/best.pt
+  --weights bricklens-yolov3/exp22/weights/best.pt
+#  --device cpu \
+
