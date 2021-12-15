@@ -70,6 +70,7 @@ python ./train.py \
   --project bricklens-yolov3 \
   --batch 4 \
   --epochs 100 \
+  --img-size 512 512 \
   --cfg models/yolov3.yaml \
-  --data data/bricklens_8parts_10colors_10000images.yaml \
+  --data data/bricklens_8parts_nocolors_10000images.yaml \
   --hyp data/hyp.bricklens.yaml
