@@ -9,6 +9,6 @@
 
 python ./detect.py \
   --source $HOME/datasets/bricklens/test_images \
-  --weights bricklens-yolov3/exp24/weights/best.pt \
+  --weights $HOME/models/bricklens/exp24/weights/best.pt \
   --device cpu 
 
