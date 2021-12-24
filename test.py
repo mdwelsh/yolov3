@@ -387,9 +387,9 @@ if __name__ == '__main__':
             model.half()
 
         model.eval()
-        with open(opt.data) as f:
-            data = yaml.load(f, Loader=yaml.FullLoader)  # model dict
-        check_dataset(data)  # check
+        #with open(opt.data) as f:
+        #    data = yaml.load(f, Loader=yaml.FullLoader)  # model dict
+        #check_dataset(data)  # check
 
         randimg = torch.rand((1, 3, imgsz, imgsz), device=device)  # init img
         randimg = randimg.half() if half else randimg.float()  # uint8 to fp16/32
