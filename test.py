@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 from threading import Thread
+import sys
 
 import numpy as np
 import torch
@@ -31,6 +32,7 @@ def test(data,
          augment=False,
          verbose=False,
          model=None,
+         torchscript_file=None,
          dataloader=None,
          save_dir=Path(''),  # for saving images
          save_txt=False,  # for auto-labelling
@@ -55,8 +57,15 @@ def test(data,
         (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
 
         # Load model
-        model = attempt_load(weights, map_location=device)  # load FP32 model
-        imgsz = check_img_size(imgsz, s=model.stride.max())  # check img_size
+        if torchscript_file is not None:
+            model = torch.jit.load(opt.torchscript)
+            print(f"Loaded TorchScript model from {opt.torchscript}: {model}")
+            orig_model = attempt_load(weights, map_location=device)
+            imgsz = check_img_size(imgsz, s=orig_model.stride.max())  # check img_size
+        else:
+            model = attempt_load(weights, map_location=device)  # load FP32 model
+            print(f"Loaded saved model from {opt.weights}: {model}")
+            imgsz = check_img_size(imgsz, s=model.stride.max())  # check img_size
 
         # Multi-GPU disabled, incompatible with .half() https://github.com/ultralytics/yolov5/issues/99
         # if device.type != 'cpu' and torch.cuda.device_count() > 1:
@@ -306,7 +315,8 @@ def test(data,
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='test.py')
-    parser.add_argument('--weights', nargs='+', type=str, default='yolov3.pt', help='model.pt path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, help='model.pt path(s)')
+    parser.add_argument('--torchscript', type=str, help='Path to torchscript .pt file')
     parser.add_argument('--data', type=str, default='data/coco128.yaml', help='*.data path')
     parser.add_argument('--batch-size', type=int, default=32, help='size of each image batch')
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
@@ -332,16 +342,17 @@ if __name__ == '__main__':
     check_requirements()
 
     if opt.task in ['val', 'test']:  # run normally
-        test(opt.data,
-             opt.weights,
-             opt.batch_size,
-             opt.img_size,
-             opt.conf_thres,
-             opt.iou_thres,
-             opt.save_json,
-             opt.single_cls,
-             opt.augment,
-             opt.verbose,
+        test(data=opt.data,
+             weights=opt.weights,
+             torchscript_file=opt.torchscript,
+             batch_size=opt.batch_size,
+             imgsz=opt.img_size,
+             conf_thres=opt.conf_thres,
+             iou_thres=opt.iou_thres,
+             save_json=opt.save_json,
+             single_cls=opt.single_cls,
+             augment=opt.augment,
+             verbose=opt.verbose,
              save_txt=opt.save_txt | opt.save_hybrid,
              save_hybrid=opt.save_hybrid,
              save_conf=opt.save_conf,
@@ -383,6 +394,7 @@ if __name__ == '__main__':
         randimg = torch.rand((1, 3, imgsz, imgsz), device=device)  # init img
         randimg = randimg.half() if half else randimg.float()  # uint8 to fp16/32
         traced_script_module = torch.jit.trace(model, randimg, check_trace=False)
-        torchscript_model_optimized = optimize_for_mobile(traced_script_module)
-        torchscript_model_optimized._save_for_lite_interpreter(opt.trace)
+        #torchscript_model_optimized = optimize_for_mobile(traced_script_module)
+        #torchscript_model_optimized._save_for_lite_interpreter(opt.trace)
+        traced_script_module.save(opt.trace)
         print(f"Saved traced model to {opt.trace}")
