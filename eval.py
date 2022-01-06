@@ -43,9 +43,11 @@ def eval_bricklens_model(args):
     img /= 255.0  # 0 - 255 to 0.0 - 1.0
     if img.ndimension() == 3:
         img = img.unsqueeze(0)
-    print(f"Input image is: {img.shape} {img.dtype}")
-    pred, output2 = model(img)
-    print(f"Output is: {type(pred)}, {type(output2)}")
+    print(f"Input image is: {type(img)} {img.shape} {img.dtype}")
+    result = model(img)
+    print(f"Result is: {type(result)}")
+    pred, output2 = result
+    print(f"Result types are: ({type(pred)}, {type(output2)})")
     print(f"Pred is: {pred.shape} {pred.dtype}")
     print(f"Output2 is a list with {len(output2)} elements:")
     print("\n".join([str(x.shape) + " " + str(x.dtype) for x in output2]))
