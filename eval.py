@@ -72,7 +72,7 @@ def main():
     parser.add_argument("--lite-file")
     parser.add_argument("--image-size", default=512)
     parser.add_argument("--image-file", type=str, required=True)
-    parser.add_argument("--conf-thres", type=float, default=0.25)
+    parser.add_argument("--conf-thres", type=float, default=0.7)
     args = parser.parse_args()
     eval_bricklens_model(args)
 
