@@ -6,10 +6,17 @@ import argparse
 from pathlib import Path
 
 import torch
+import torch.nn as nn
 from torch.utils.mobile_optimizer import optimize_for_mobile
 
 from models.experimental import attempt_load
 from utils.general import check_img_size
+
+
+class ReturnFirstElement(nn.Module):
+    """Trivial nn.Module that returns only the first element from a list."""
+    def forward(self, x):
+        return x[0]
 
 
 def export_model(weights_file: str, spec_file: str, output_file: str, imgsz: int):
@@ -19,6 +26,10 @@ def export_model(weights_file: str, spec_file: str, output_file: str, imgsz: int
     # Load model.
     model = attempt_load(weights_file, map_location=device)  # load FP32 model
     imgsz = check_img_size(imgsz, s=model.stride.max())  # check img_size
+
+    # Wrap model.
+    model = nn.Sequential(model, ReturnFirstElement())
+
     model.eval()
     randimg = torch.rand((1, 3, imgsz, imgsz), device=device)  # init img
     randimg = randimg.float()  # uint8 to fp16/32

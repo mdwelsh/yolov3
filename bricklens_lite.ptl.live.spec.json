@@ -18,33 +18,8 @@
     ]
   },
   "unpack": {
-    "type": "tuple",
-    "items": [
-      {
-        "type": "tensor",
-        "key": "pred",
-        "dtype": "float"
-      },
-      {
-        "type": "list",
-        "items": [
-          {
-            "type": "tensor",
-            "key": "output2a",
-            "dtype": "float"
-          },
-          {
-            "type": "tensor",
-            "key": "output2b",
-            "dtype": "float"
-          },
-          {
-            "type": "tensor",
-            "key": "output2c",
-            "dtype": "float"
-          }
-        ]
-      }
-    ]
+    "type": "tensor",
+    "key": "pred",
+    "dtype": "float"
   }
 }

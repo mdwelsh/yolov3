@@ -46,12 +46,15 @@ def eval_bricklens_model(args):
     print(f"Input image is: {type(img)} {img.shape} {img.dtype}")
     result = model(img)
     print(f"Result is: {type(result)}")
-    pred, output2 = result
-    print(f"Result types are: ({type(pred)}, {type(output2)})")
-    print(f"Pred is: {pred.shape} {pred.dtype}")
-    print(f"Output2 is a list with {len(output2)} elements:")
-    print("\n".join([str(x.shape) + " " + str(x.dtype) for x in output2]))
 
+    if args.lite_file:
+        # The wrapped model from export.py only returns its first output.
+        pred = result
+    else:
+        # The non-wrapped model.
+        pred = result[0]
+
+    print(f"Pred is: {type(pred)} {pred.shape} {pred.dtype}")
     xc = pred[..., 4] > args.conf_thres
     for xi, x in enumerate(pred):  # image index, image inference
         print(f"Pred [{xi}] has shape {x.shape}")
