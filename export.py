@@ -14,7 +14,13 @@ from utils.general import check_img_size
 
 
 class ReturnFirstElement(nn.Module):
-    """Trivial nn.Module that returns only the first element from a list."""
+    """Trivial nn.Module that returns only the first element from a list.
+
+    This is necessary because the models return both their predictions as well
+    as their loss values at runtime. We need to strip off the loss values, since
+    returning a list as an inference result does not currently play nice with
+    PyTorch Live on iOS.
+    """
     def forward(self, x):
         return x[0]
 
@@ -27,7 +33,7 @@ def export_model(weights_file: str, spec_file: str, output_file: str, imgsz: int
     model = attempt_load(weights_file, map_location=device)  # load FP32 model
     imgsz = check_img_size(imgsz, s=model.stride.max())  # check img_size
 
-    # Wrap model.
+    # Wrap model in a ReturnFirstElement module so it only returns the model predictions.
     model = nn.Sequential(model, ReturnFirstElement())
 
     model.eval()

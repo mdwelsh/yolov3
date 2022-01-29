@@ -10,5 +10,6 @@
 python ./detect.py \
   --source $HOME/datasets/bricklens/test_images_640 \
   --weights $HOME/models/bricklens/exp24/weights/best.pt \
-  --torchscript ./bricklens.pt \
+  --torchscript bricklens_lite.ptl \
+  --conf-thres=0.7 \
   --device cpu 
