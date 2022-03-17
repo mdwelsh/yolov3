@@ -107,11 +107,13 @@ def detect(opt, save_img=False):
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
         print(f"MDW: Image we are feeding to model is {img.shape}")
+        iarr = img[0:9]
+        print(f"MDW: iarr is {iarr}")
 
         # Inference
         t1 = time_synchronized()
         if opt.torchscript is not None:
-            pred = model(img)[0]
+            pred = model(img)
         else:
             pred = model(img, augment=opt.augment)[0]
 
