@@ -66,11 +66,23 @@
 #  --data data/bricklens_8parts_10colors_10000images.yaml \
 #  --hyp data/hyp.bricklens.yaml
 
+# 17 March 2022: This is the model I have been using for app development.
+# However, it seems to be too large to run on the phone.
+#python ./train.py \
+#  --project bricklens-yolov3 \
+#  --batch 4 \
+#  --epochs 100 \
+#  --img-size 512 512 \
+#  --cfg models/yolov3.yaml \
+#  --data data/bricklens_8parts_nocolors_10000images.yaml \
+#  --hyp data/hyp.bricklens.yaml
+
+# 17 March 2022: Try a tiny model.
 python ./train.py \
   --project bricklens-yolov3 \
-  --batch 4 \
+  --batch 64 \
   --epochs 100 \
   --img-size 512 512 \
-  --cfg models/yolov3.yaml \
+  --cfg models/yolov3-tiny.yaml \
   --data data/bricklens_8parts_nocolors_10000images.yaml \
   --hyp data/hyp.bricklens.yaml

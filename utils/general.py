@@ -349,9 +349,6 @@ def non_max_suppression(prediction, conf_thres=0.25, iou_thres=0.45, classes=Non
         # x[((x[..., 2:4] < min_wh) | (x[..., 2:4] > max_wh)).any(1), 4] = 0  # width-height
         x = x[xc[xi]]  # confidence
 
-        # XXX MDW HACKING
-        print(f"Prediction [{xi}] = {x}")
-
         # Cat apriori labels if autolabelling
         if labels and len(labels[xi]):
             l = labels[xi]

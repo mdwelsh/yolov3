@@ -55,10 +55,10 @@ def export_model(weights_file: str, spec_file: str, output_file: str, imgsz: int
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--weights-file", default="./bricklens-yolov3/exp24/weights/best.pt"
+        "--weights-file", default="./bricklens-yolov3/exp29/weights/best.pt"
     )
     parser.add_argument("--spec-file", default="./bricklens_lite.ptl.live.spec.json")
-    parser.add_argument("--output-file", default="bricklens_lite.ptl")
+    parser.add_argument("--output-file", default="bricklens_lite_exp29.ptl")
     parser.add_argument("--img-size", type=int, default=512)
     args = parser.parse_args()
 
