@@ -92,23 +92,24 @@ def detect(opt, save_img=False):
         dataset = LoadImages(source, img_size=imgsz)
 
     # Get names and colors
-    #names = model.module.names if hasattr(model, "module") else model.names
+    # names = model.module.names if hasattr(model, "module") else model.names
     colors = [[random.randint(0, 255) for _ in range(3)] for _ in names]
 
     # Run inference
-    print(f"MDW: Model image size is {imgsz} x {imgsz}")
+    print(f"Model taking input image size of {imgsz} x {imgsz}")
     t0 = time.time()
     img = torch.zeros((1, 3, imgsz, imgsz), device=device)  # init img
     _ = model(img.half() if half else img) if device.type != "cpu" else None  # run once
+
+    # For each image:
     for path, img, im0s, vid_cap in dataset:
+        print(f"{path} {im0s.shape[0]}x{im0s.shape[1]} -> resized {img.shape}")
+
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
-        print(f"MDW: Image we are feeding to model is {img.shape}")
-        iarr = img[0:9]
-        print(f"MDW: iarr is {iarr}")
 
         # Inference
         t1 = time_synchronized()
@@ -143,16 +144,17 @@ def detect(opt, save_img=False):
             txt_path = str(save_dir / "labels" / p.stem) + (
                 "" if dataset.mode == "image" else f"_{frame}"
             )  # img.txt
-            s += "%gx%g " % img.shape[2:]  # print string
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
             if len(det):
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
                 # Print results
+                print("  Detections: ", end="")
                 for c in det[:, -1].unique():
                     n = (det[:, -1] == c).sum()  # detections per class
-                    s += f"{n} {names[int(c)]}s, "  # add to string
+                    print(f"{n}x '{names[int(c)]}'", end="")
+                print("")
 
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
@@ -179,7 +181,7 @@ def detect(opt, save_img=False):
                         )
 
             # Print time (inference + NMS)
-            print(f"{s}Done. ({t2 - t1:.3f}s)")
+            print(f"  Processed in {t2 - t1:.3f}s")
 
             # Stream results
             if view_img:
