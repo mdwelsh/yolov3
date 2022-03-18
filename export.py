@@ -59,7 +59,7 @@ def main():
     )
     parser.add_argument("--spec-file", default="./bricklens_lite.ptl.live.spec.json")
     parser.add_argument("--output-file", default="bricklens_lite_exp29.ptl")
-    parser.add_argument("--img-size", type=int, default=512)
+    parser.add_argument("--img-size", type=int, default=640)
     args = parser.parse_args()
 
     export_model(args.weights_file, args.spec_file, args.output_file, args.img_size)
