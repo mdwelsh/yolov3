@@ -10,6 +10,12 @@
         "height": "$scaleHeight"
       },
       {
+        "type": "image_to_image",
+        "name": "scale",
+        "width": "$scaleWidth",
+        "height": "$scaleHeight"
+      },
+      {
         "type": "image_to_tensor",
         "name": "rgb_norm",
         "mean": [0.0, 0.0, 0.0],
