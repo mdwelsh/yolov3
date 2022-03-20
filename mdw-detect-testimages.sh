@@ -4,14 +4,14 @@
 
 # The original 'large' model.
 python ./detect.py \
-  --source $HOME/datasets/bricklens/test_images \
+  --source ./testimages \
   --weights ./bricklens-yolov3/exp24/weights/best.pt \
   --device cpu \
   --img-size 512
 
 # The new 'tiny' model.
 python ./detect.py \
-  --source $HOME/datasets/bricklens/test_images \
+  --source ./testimages \
   --weights ./bricklens-yolov3/exp30/weights/best.pt \
   --device cpu \
   --img-size 512
