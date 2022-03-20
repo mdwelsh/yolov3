@@ -80,8 +80,8 @@
 # 17 March 2022: Try a tiny model.
 python ./train.py \
   --project bricklens-yolov3 \
-  --batch 64 \
-  --epochs 100 \
+  --batch 8 \
+  --epochs 300 \
   --img-size 512 512 \
   --cfg models/yolov3-tiny.yaml \
   --data data/bricklens_8parts_nocolors_10000images.yaml \

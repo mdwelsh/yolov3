@@ -12,7 +12,7 @@ python ./detect.py \
 # The new 'tiny' model.
 python ./detect.py \
   --source $HOME/datasets/bricklens/test_images \
-  --weights ./bricklens-yolov3/exp29/weights/best.pt \
+  --weights ./bricklens-yolov3/exp30/weights/best.pt \
   --device cpu \
   --img-size 512
 
