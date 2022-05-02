@@ -47,7 +47,8 @@ def create(name, pretrained, channels, classes, autoshape):
 
     except Exception as e:
         help_url = 'https://github.com/ultralytics/yolov5/issues/36'
-        s = 'Cache maybe be out of date, try force_reload=True. See %s for help.' % help_url
+        s = f'Cache maybe be out of date, try force_reload=True. See {help_url} for help.'
+
         raise Exception(s) from e
 
 

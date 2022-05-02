@@ -4,6 +4,7 @@ Usage:
     $ export PYTHONPATH="$PWD" && python models/export.py --weights ./weights/yolov3.pt --img 640 --batch 1
 """
 
+
 import argparse
 import sys
 import time
@@ -59,9 +60,9 @@ if __name__ == '__main__':
         f = opt.weights.replace('.pt', '.torchscript.pt')  # filename
         ts = torch.jit.trace(model, img)
         ts.save(f)
-        print('TorchScript export success, saved as %s' % f)
+        print(f'TorchScript export success, saved as {f}')
     except Exception as e:
-        print('TorchScript export failure: %s' % e)
+        print(f'TorchScript export failure: {e}')
 
     # ONNX export
     try:
@@ -76,9 +77,9 @@ if __name__ == '__main__':
         onnx_model = onnx.load(f)  # load onnx model
         onnx.checker.check_model(onnx_model)  # check onnx model
         # print(onnx.helper.printable_graph(onnx_model.graph))  # print a human readable model
-        print('ONNX export success, saved as %s' % f)
+        print(f'ONNX export success, saved as {f}')
     except Exception as e:
-        print('ONNX export failure: %s' % e)
+        print(f'ONNX export failure: {e}')
 
     # CoreML export
     try:
@@ -89,9 +90,9 @@ if __name__ == '__main__':
         model = ct.convert(ts, inputs=[ct.ImageType(name='image', shape=img.shape, scale=1 / 255.0, bias=[0, 0, 0])])
         f = opt.weights.replace('.pt', '.mlmodel')  # filename
         model.save(f)
-        print('CoreML export success, saved as %s' % f)
+        print(f'CoreML export success, saved as {f}')
     except Exception as e:
-        print('CoreML export failure: %s' % e)
+        print(f'CoreML export failure: {e}')
 
     # Finish
     print('\nExport complete (%.2fs). Visualize with https://github.com/lutzroeder/netron.' % (time.time() - t))

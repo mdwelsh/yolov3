@@ -45,9 +45,7 @@ def exif_size(img):
     s = img.size  # (width, height)
     try:
         rotation = dict(img._getexif().items())[orientation]
-        if rotation == 6:  # rotation 270
-            s = (s[1], s[0])
-        elif rotation == 8:  # rotation 90
+        if rotation in [6, 8]:  # rotation 270
             s = (s[1], s[0])
     except:
         pass
@@ -99,7 +97,7 @@ class InfiniteDataLoader(torch.utils.data.dataloader.DataLoader):
         return len(self.batch_sampler.sampler)
 
     def __iter__(self):
-        for i in range(len(self)):
+        for _ in range(len(self)):
             yield next(self.iterator)
 
 
@@ -163,12 +161,11 @@ class LoadImages:  # for inference
             if not ret_val:
                 self.count += 1
                 self.cap.release()
-                if self.count == self.nf:  # last video
+                if self.count == self.nf:
                     raise StopIteration
-                else:
-                    path = self.files[self.count]
-                    self.new_video(path)
-                    ret_val, img0 = self.cap.read()
+                path = self.files[self.count]
+                self.new_video(path)
+                ret_val, img0 = self.cap.read()
 
             self.frame += 1
             print(f'video {self.count + 1}/{self.nf} ({self.frame}/{self.nframes}) {path}: ', end='')
@@ -177,7 +174,7 @@ class LoadImages:  # for inference
             # Read image
             self.count += 1
             img0 = cv2.imread(path)  # BGR
-            assert img0 is not None, 'Image Not Found ' + path
+            assert img0 is not None, f'Image Not Found {path}'
             print(f'image {self.count}/{self.nf} {path}: ', end='')
 
         # Padded resize
@@ -330,7 +327,7 @@ class LoadStreams:  # multiple IP or RTSP cameras
 
 def img2label_paths(img_paths):
     # Define label paths as a function of image paths
-    sa, sb = os.sep + 'images' + os.sep, os.sep + 'labels' + os.sep  # /images/, /labels/ substrings
+    sa, sb = f'{os.sep}images{os.sep}', f'{os.sep}labels{os.sep}'
     return [x.replace(sa, sb, 1).replace('.' + x.split('.')[-1], '.txt') for x in img_paths]
 
 
